@@ -7506,14 +7506,15 @@ open class Terminal {
         return try? NSRegularExpression(pattern: regex, options: [])
     }()
 
-    // The start of a row that opens a new line of output: a list item ("5. ", "- "), a home,
-    // `.` or `..` path, or a web address. Such a row is never the rest of the row above.
-    // A lone "/" is deliberately absent: it also starts every path segment, and a renderer
-    // that breaks a long path just before one must still have the two rows joined.
+    // The start of a row that opens a new line of output: a list item ("5. ", "- "), a home
+    // path, or a web address. Such a row is never the rest of the row above.
+    // A lone "/" and "./" or "../" are deliberately absent: they also occur inside paths
+    // ("../../src", where a break can leave "./src" or "../src" on the lower row), and a
+    // renderer that breaks a long path there must still have the two rows joined.
     private static let ghosttyNewLineStartRegex: NSRegularExpression? = {
         let listMarker = #"(?:[-*+]|[0-9]{1,3}[.)]) "#
-        let homeOrRelativePath = #"~/|\.{1,2}/"#
-        let pattern = "^(?:" + listMarker + "|" + homeOrRelativePath + "|" + Terminal.ghosttyURLSchemes + ")"
+        let homePath = #"~/"#
+        let pattern = "^(?:" + listMarker + "|" + homePath + "|" + Terminal.ghosttyURLSchemes + ")"
         return try? NSRegularExpression(pattern: pattern, options: [])
     }()
 
